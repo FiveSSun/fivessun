@@ -1,0 +1,2 @@
+graphframes:graphframes:0.8.2-spark3.1-s_2.12
+org.apache.spark:spark-sql-kafka-0-10_2.12:3.3.0

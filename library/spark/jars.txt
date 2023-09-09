@@ -1,0 +1,8 @@
+https://repo1.maven.org/maven2/com/google/cloud/spark/spark-bigquery-with-dependencies_2.12/0.26.0/spark-bigquery-with-dependencies_2.12-0.26.0.jar
+https://repo1.maven.org/maven2/io/delta/delta-core_2.12/2.1.1/delta-core_2.12-2.1.1.jar
+https://repo1.maven.org/maven2/io/delta/delta-storage/2.1.1/delta-storage-2.1.1.jar
+https://repo1.maven.org/maven2/org/apache/spark/spark-avro_2.12/3.3.0/spark-avro_2.12-3.3.0.jar
+https://repo1.maven.org/maven2/org/mongodb/spark/mongo-spark-connector_2.12/10.1.1/mongo-spark-connector_2.12-10.1.1.jar
+https://repo1.maven.org/maven2/com/github/housepower/clickhouse-spark-runtime-3.3_2.12/0.5.0/clickhouse-spark-runtime-3.3_2.12-0.5.0.jar
+https://repo1.maven.org/maven2/com/clickhouse/clickhouse-jdbc/0.3.2-patch11/clickhouse-jdbc-0.3.2-patch11-all.jar
+https://repo1.maven.org/maven2/mysql/mysql-connector-java/5.1.47/mysql-connector-java-5.1.47.jar
