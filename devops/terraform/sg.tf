@@ -9,7 +9,7 @@ resource "aws_security_group" "app_mesh" {
     protocol  = "-1"
     self      = true
     security_groups = [
-#      aws_security_group.app_ingress.id,
+      #      aws_security_group.app_ingress.id,
     ]
     cidr_blocks = [
       module.vpc.vpc_cidr_block,
@@ -25,7 +25,7 @@ resource "aws_security_group" "app_mesh" {
   }
 
   tags = {
-    "Name"                                                   = "app-mesh"
+    "Name"                                             = "app-mesh"
     "karpenter.sh/discovery/${local.eks_cluster_name}" = "-"
   }
 }

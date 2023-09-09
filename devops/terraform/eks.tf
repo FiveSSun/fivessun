@@ -106,7 +106,7 @@ module "eks_fivessun_1_27" {
 
       labels = {
         compute-type = "managed-nodegroup"
-        nodegroup   = "default"
+        nodegroup    = "default"
       }
 
       update_config = {
@@ -138,7 +138,7 @@ module "eks_fivessun_1_27" {
       selectors = [
         for ns in [
           "default",
-#          "keda",
+          #          "keda",
           "kube-system",
           "karpenter"
         ] :
