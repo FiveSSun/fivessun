@@ -8,8 +8,10 @@
     "prepare": "husky install"
   },
   "lint-staged": {
-    "{PYTHON_PROJECT_DIR}/**/*.py":  [
-      "yarn precommit:fivessun/py",
+    "**/*.py":  [
+      "yarn precommit:fivessun/py"
+    ],
+    "devops/terraform/*.tf":  [
       "yarn precommit:fivessun/tf"
     ]
   }
