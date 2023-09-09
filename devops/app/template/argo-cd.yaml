@@ -1,0 +1,26 @@
+# kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+# kubectl port-forward svc/argocd-server -n argocd 8080:80
+
+{{- $files := .Files }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: argocd
+    server: https://kubernetes.default.svc
+  project: infra
+  source:
+    repoURL: https://argoproj.github.io/argo-helm
+    targetRevision: 5.41.1
+    chart: argo-cd
+    helm:
+      releaseName: infra-argocd
+      values: |
+          {{- $files.Get "conf/argo-cd/default.yaml" | nindent 12 }}
+  syncPolicy:
+    {{- toYaml .Values.argocd.syncPolicy | nindent 8 }}

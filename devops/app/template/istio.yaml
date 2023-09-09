@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: isito-base
+  namespace: argocd
+  annotations:
+    notifications.argoproj.io/subscribe.on-sync-succeeded.slack: {{ .Values.slackNotificationChannel }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  generators:
+    - clusters: {}
+
+  template:
+    metadata:
+      name: 'istio-base-{{`{{name}}`}}'
+    spec:
+      destination:
+        server: '{{`{{server}}`}}'
+        namespace: istio-system
+      project: '{{`{{metadata.labels.eks.ridi.io/project}}`}}'
+      source:
+        repoURL: https://istio-release.storage.googleapis.com/charts
+        targetRevision: 1.15.3
+        chart: base
+        helm:
+          releaseName: istio-base
+
+      syncPolicy:
+        {{- toYaml .Values.argocd.syncPolicy | nindent 8 }}
