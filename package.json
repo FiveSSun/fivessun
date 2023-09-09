@@ -1,0 +1,16 @@
+{
+  "devDependencies": {
+    "husky": "^8.0.3"
+  },
+  "scripts": {
+    "precommit:fivessun/py": "scripts/precommit-py.sh",
+    "precommit:fivessun/tf": "scripts/precommit-tf.sh",
+    "prepare": "husky install"
+  },
+  "lint-staged": {
+    "{PYTHON_PROJECT_DIR}/**/*.py":  [
+      "yarn precommit:fivessun/py",
+      "yarn precommit:fivessun/tf"
+    ]
+  }
+}
