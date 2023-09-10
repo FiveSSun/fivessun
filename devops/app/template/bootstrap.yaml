@@ -23,14 +23,13 @@ spec:
       name: 'bootstrap-{{`{{name}}`}}'
     spec:
       destination:
+        namespace: argocd
         server: '{{`{{server}}`}}'
-        namespace: ridi
-      project: '{{`{{metadata.labels.eks.ridi.io/project}}`}}'
+      project: default
       source:
         repoURL: git@github.com:fivessun/fivessun.git
         targetRevision: '{{`{{values.revision}}`}}'
         path: '{{`{{values.path}}`}}'
         kustomize: {}
-
-      syncPolicy:
-        {{- toYaml .Values.argocd.syncPolicy | nindent 8 }}
+#      syncPolicy:
+#        {{- toYaml .Values.argocd.syncPolicy | nindent 8 }}

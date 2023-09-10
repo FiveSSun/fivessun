@@ -1,7 +1,7 @@
 {{- $files := .Files }}
 apiVersion: argoproj.io/v1alpha1
 kind: Application
-metadata
+metadata:
   name: argocd
   namespace: argocd
   finalizers:
@@ -19,5 +19,5 @@ spec:
       releaseName: infra-argocd
       values: |
           {{- $files.Get "conf/argo-cd/default.yaml" | nindent 12 }}
-  syncPolicy:
-    {{- toYaml .Values.argocd.syncPolicy | nindent 8 }}
+#  syncPolicy:
+#    {{- toYaml .Values.argocd.syncPolicy | nindent 8 }}
