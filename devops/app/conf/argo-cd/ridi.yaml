@@ -1,0 +1,389 @@
+global:
+  logging:
+    level: warn
+
+configs:
+  params:
+    controller.status.processors: "50"
+    controller.operation.processors: "25"
+    dexserver.disable.tls: "true"
+    controller.repo.server.timeout.seconds: "300"
+    controller.self.heal.timeout.seconds: "20"
+
+redis-ha:
+  enabled: true
+
+controller:
+  resources:
+    requests:
+      cpu: 250m
+      memory: 384Mi
+    limits:
+      cpu: 500m
+      memory: 384Mi
+
+applicationSet:
+  replicaCount: 2
+
+server:
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+  extensions:
+    enabled: true
+  extraArgs:
+    - --insecure
+    - --enable-gzip
+  rbacConfig:
+    policy.default: role:readonly
+    policy.csv: |-
+      p, role:readonly, applications, get, */*, allow
+      p, role:readonly, logs, get, */*, allow
+      p, role:readonly, certificates, get, *, allow
+      p, role:readonly, clusters, get, *, allow
+      p, role:readonly, repositories, get, *, allow
+      p, role:readonly, projects, get, *, allow
+      p, role:readonly, accounts, get, *, allow
+      p, role:readonly, gpgkeys, get, *, allow
+      p, role:readonly, logs, get, */*, allow
+      p, role:admin, applications, create, */*, allow
+      p, role:admin, applications, update, */*, allow
+      p, role:admin, applications, delete, */*, allow
+      p, role:admin, applications, sync, */*, allow
+      p, role:admin, applications, override, */*, allow
+      p, role:admin, applications, action/*, */*, allow
+      p, role:admin, certificates, create, *, allow
+      p, role:admin, certificates, update, *, allow
+      p, role:admin, certificates, delete, *, allow
+      p, role:admin, clusters, create, *, allow
+      p, role:admin, clusters, update, *, allow
+      p, role:admin, clusters, delete, *, allow
+      p, role:admin, repositories, create, *, allow
+      p, role:admin, repositories, update, *, allow
+      p, role:admin, repositories, delete, *, allow
+      p, role:admin, projects, create, *, allow
+      p, role:admin, projects, update, *, allow
+      p, role:admin, projects, delete, *, allow
+      p, role:admin, accounts, update, *, allow
+      p, role:admin, gpgkeys, create, *, allow
+      p, role:admin, gpgkeys, delete, *, allow
+      g, role:admin, role:readonly
+      g, minq, role:admin
+      g, "5448ed2c-0071-70e4-653c-d54a14e2353a", role:admin
+      g, "3488edec-0081-70a7-2fd3-93e22e31b17b", role:admin
+      g, "c4c87d3c-90d1-7063-5640-a6d539c8a2ab", role:readonly
+  config:
+    accounts.minq: apiKey,login
+    admin.enabled: "true"
+    statusbadge.enabled: "true"
+    statusbadge.url: https://badge.infra.ridi.io/argocd/
+    url: https://argocd.infra.ridi.zone
+    kustomize.buildOptions: "--enable-helm --load-restrictor LoadRestrictionsNone"
+    repositories: |
+      - type: helm
+        name: aws
+        url: public.ecr.aws
+        enableOci: true
+    resource.customizations.ignoreDifferences.admissionregistration.k8s.io_MutatingWebhookConfiguration: |
+      jqPathExpressions:
+        - '.webhooks[]?.clientConfig.caBundle'
+    resource.customizations.ignoreDifferences.admissionregistration.k8s.io_ValidatingWebhookConfiguration: |
+      jqPathExpressions:
+        - '.webhooks[]?.failurePolicy'
+    resource.exclusions: |
+      - apiGroups:
+        - "tekton.dev"
+        kinds:
+          - "PipelineRun"
+          - "TaskRun"
+        clusters:
+          - "*"
+    dex.config: |
+      connectors:
+        - type: saml
+          id: saml
+          name: saml
+          config:
+            ssoURL: https://portal.sso.ap-northeast-2.amazonaws.com/saml/assertion/MDE4MTA3MjM4NzA5X2lucy04ZDk2NTFhYzRhMDlkMmZl
+            entityIssuer: https://argocd.infra.ridi.zone/api/dex/callback
+            caData: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCakNDQWU2Z0F3SUJBZ0lFWlRSZGlEQU5CZ2txaGtpRzl3MEJBUXNGQURCRk1SWXdGQVlEVlFRRERBMWgKYldGNmIyNWhkM011WTI5dE1RMHdDd1lEVlFRTERBUkpSRUZUTVE4d0RRWURWUVFLREFaQmJXRjZiMjR4Q3pBSgpCZ05WQkFZVEFsVlRNQjRYRFRJek1EZ3hPREEzTkRNeE5Wb1hEVEk0TURneE9EQTNORE14TlZvd1JURVdNQlFHCkExVUVBd3dOWVcxaGVtOXVZWGR6TG1OdmJURU5NQXNHQTFVRUN3d0VTVVJCVXpFUE1BMEdBMVVFQ2d3R1FXMWgKZW05dU1Rc3dDUVlEVlFRR0V3SlZVekNDQVNJd0RRWUpLb1pJaHZjTkFRRUJCUUFEZ2dFUEFEQ0NBUW9DZ2dFQgpBT09sZ1RQbGJIM3YwU1lMSEthWXBQQ0tFKzdTaXdBVEV4Q0s4Qm5NaWxmWGF6ZkNCdjBPRDVFWS9YRU50eVgzCmRmMzZ0S1BZWkM3SHRUWG1rNFBrLzliaWFHN3hKM2V1ZFQ5ZitKelduNE5ZYmZHYnRpMmx3WXhRaFl0dTg4eWkKanFlY2ptdlo2NGM2ZW1va3E1M1Jpdmc5K3dlR2RqS1FtUG0rTFBDTW5hMTNBMytFSjk4a1dPcXhPb2w5WDRDeApweFVEUnNwdUx4RGNHZTlOU1paWURsOGVhOGpFZzIydXpjNitkMnFrcTI2UjBOREJubm9iTGs1Y29xR0pDSVo5CmZEVWVnd1hlTm5sQUZpNUUxcm5RZUhTSSsxcGg5ajFCZHFDMUk0eGkveHJRNXFPR1o0VDJpUXNlVnZjRk1ZMmMKTjVKbWhNNU5DeVJ1eDRvK0FsUktPVGNDQXdFQUFUQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUFiMG9jWFRHUwp1UTBabk5tYUIzeFdYS2k3bmxNT0ZWZFFKQmlOZFZSUzUyaTV5bUg4amIxWVZ1T1ZkaFZMWUdTajBQZmtyZlR2CkdITVN5ZkF3RTdicDBpZG5FU1dlNFFkVjZ0Ly9najJNdVVqeU9SRk82ZEY4Y0wrT0lLdktndi9pdjQzQm82U20KUGE4YkdqM2NURnZPSGxoOWxRSk9yeHp6ZUJVeS94emsvbElBTmMxQUxpSnZjZjNxcG54M2VraC9sSjZKakt6SQpDa3Z4eHhxdEVSajRCVi9rbUp3MVJJUU9LUWMyL0JxS01lczdrZzE0UmVWS1RUc05jRXRXbVlpY2dGNnozdXVlCm03eFZaWlR2ajlRaThwS3h5YitBZDJRUzZIeDRUL2ZtL1ZiRVVJT3lJbVlBOXZyZ0JUSThKc1BuWTJTZGVocTAKaGEveXhnMStsajJwTXc9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+            redirectURI: https://argocd.infra.ridi.zone/api/dex/callback
+            usernameAttr: email
+            emailAttr: email
+            groupsAttr: groups
+            ssoIssuer: https://portal.sso.ap-northeast-2.amazonaws.com/saml/assertion/MDE4MTA3MjM4NzA5X2lucy04ZDk2NTFhYzRhMDlkMmZl
+            nameIDPolicyFormat: emailAddress
+repoServer:
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 2048Mi
+    requests:
+      cpu: 500m
+      memory: 1024Mi
+
+notifications:
+  context:
+    argocdUrl: https://argocd.infra.ridi.zone
+  secret:
+    create: false
+  extraEnvFrom:
+    - secretRef:
+        name: argocd-notifications-secret
+  notifiers:
+    service.slack: |
+      token: $slack-token
+      signingSecret: $slack-signing-secret
+
+  templates:
+    template.app-deployed: |
+      email:
+        subject: New version of an application {{.app.metadata.name}} is up and running.
+      message: |
+        {{if eq .serviceType "slack"}}:white_check_mark:{{end}} Application {{.app.metadata.name}} is now running new version of deployments manifests.
+      slack:
+        attachments: |
+          [{
+            "title": "{{ .app.metadata.name}}",
+            "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+            "color": "#18be52",
+            "fields": [
+            {
+              "title": "Sync Status",
+              "value": "{{.app.status.sync.status}}",
+              "short": true
+            },
+            {
+              "title": "Repository",
+              "value": "{{.app.spec.source.repoURL}}",
+              "short": true
+            },
+            {
+              "title": "Revision",
+              "value": "{{.app.status.sync.revision}}",
+              "short": true
+            }
+            {{range $index, $c := .app.status.conditions}}
+            {{if not $index}},{{end}}
+            {{if $index}},{{end}}
+            {
+              "title": "{{$c.type}}",
+              "value": "{{$c.message}}",
+              "short": true
+            }
+            {{end}}
+            ]
+          }]
+    template.app-health-degraded: |
+      email:
+        subject: Application {{.app.metadata.name}} has degraded.
+      message: |
+        {{if eq .serviceType "slack"}}:exclamation:{{end}} Application {{.app.metadata.name}} has degraded.
+        Application details: {{.context.argocdUrl}}/applications/{{.app.metadata.name}}.
+      slack:
+        attachments: |-
+          [{
+            "title": "{{ .app.metadata.name}}",
+            "title_link": "{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+            "color": "#f4c030",
+            "fields": [
+            {
+              "title": "Sync Status",
+              "value": "{{.app.status.sync.status}}",
+              "short": true
+            },
+            {
+              "title": "Repository",
+              "value": "{{.app.spec.source.repoURL}}",
+              "short": true
+            }
+            {{range $index, $c := .app.status.conditions}}
+            {{if not $index}},{{end}}
+            {{if $index}},{{end}}
+            {
+              "title": "{{$c.type}}",
+              "value": "{{$c.message}}",
+              "short": true
+            }
+            {{end}}
+            ]
+          }]
+    template.app-sync-failed: |
+      email:
+        subject: Failed to sync application {{.app.metadata.name}}.
+      message: |
+        {{if eq .serviceType "slack"}}:exclamation:{{end}}  The sync operation of application {{.app.metadata.name}} has failed at {{.app.status.operationState.finishedAt}} with the following error: {{.app.status.operationState.message}}
+        Sync operation details are available at: {{.context.argocdUrl}}/applications/{{.app.metadata.name}}?operation=true .
+      slack:
+        attachments: |-
+          [{
+            "title": "{{ .app.metadata.name}}",
+            "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+            "color": "#E96D76",
+            "fields": [
+            {
+              "title": "Sync Status",
+              "value": "{{.app.status.sync.status}}",
+              "short": true
+            },
+            {
+              "title": "Repository",
+              "value": "{{.app.spec.source.repoURL}}",
+              "short": true
+            }
+            {{range $index, $c := .app.status.conditions}}
+            {{if not $index}},{{end}}
+            {{if $index}},{{end}}
+            {
+              "title": "{{$c.type}}",
+              "value": "{{$c.message}}",
+              "short": true
+            }
+            {{end}}
+            ]
+          }]
+    template.app-sync-running: |
+      email:
+        subject: Start syncing application {{.app.metadata.name}}.
+      message: |
+        The sync operation of application {{.app.metadata.name}} has started at {{.app.status.operationState.startedAt}}.
+        Sync operation details are available at: {{.context.argocdUrl}}/applications/{{.app.metadata.name}}?operation=true .
+      slack:
+        attachments: |-
+          [{
+            "title": "{{ .app.metadata.name}}",
+            "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+            "color": "#0DADEA",
+            "fields": [
+            {
+              "title": "Sync Status",
+              "value": "{{.app.status.sync.status}}",
+              "short": true
+            },
+            {
+              "title": "Repository",
+              "value": "{{.app.spec.source.repoURL}}",
+              "short": true
+            }
+            {{range $index, $c := .app.status.conditions}}
+            {{if not $index}},{{end}}
+            {{if $index}},{{end}}
+            {
+              "title": "{{$c.type}}",
+              "value": "{{$c.message}}",
+              "short": true
+            }
+            {{end}}
+            ]
+          }]
+    template.app-sync-status-unknown: |
+      email:
+        subject: Application {{.app.metadata.name}} sync status is 'Unknown'
+      message: |
+        {{if eq .serviceType "slack"}}:exclamation:{{end}} Application {{.app.metadata.name}} sync is 'Unknown'.
+        Application details: {{.context.argocdUrl}}/applications/{{.app.metadata.name}}.
+        {{if ne .serviceType "slack"}}
+        {{range $c := .app.status.conditions}}
+            * {{$c.message}}
+        {{end}}
+        {{end}}
+      slack:
+        attachments: |-
+          [{
+            "title": "{{ .app.metadata.name}}",
+            "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+            "color": "#E96D76",
+            "fields": [
+            {
+              "title": "Sync Status",
+              "value": "{{.app.status.sync.status}}",
+              "short": true
+            },
+            {
+              "title": "Repository",
+              "value": "{{.app.spec.source.repoURL}}",
+              "short": true
+            }
+            {{range $index, $c := .app.status.conditions}}
+            {{if not $index}},{{end}}
+            {{if $index}},{{end}}
+            {
+              "title": "{{$c.type}}",
+              "value": "{{$c.message}}",
+              "short": true
+            }
+            {{end}}
+            ]
+          }]
+    template.app-sync-succeeded: |
+      email:
+        subject: Application {{.app.metadata.name}} has been successfully synced.
+      message: |
+        {{if eq .serviceType "slack"}}:white_check_mark:{{end}} Application {{.app.metadata.name}} has been successfully synced at {{.app.status.operationState.finishedAt}}.
+        Sync operation details are available at: {{.context.argocdUrl}}/applications/{{.app.metadata.name}}?operation=true .
+      slack:
+        attachments: |-
+          [{
+            "title": "{{ .app.metadata.name}}",
+            "title_link":"{{.context.argocdUrl}}/applications/{{.app.metadata.name}}",
+            "color": "#18be52",
+            "fields": [
+            {
+              "title": "Sync Status",
+              "value": "{{.app.status.sync.status}}",
+              "short": true
+            },
+            {
+              "title": "Repository",
+              "value": "{{.app.spec.source.repoURL}}",
+              "short": true
+            }
+            {{range $index, $c := .app.status.conditions}}
+            {{if not $index}},{{end}}
+            {{if $index}},{{end}}
+            {
+              "title": "{{$c.type}}",
+              "value": "{{$c.message}}",
+              "short": true
+            }
+            {{end}}
+            ]
+          }]
+  triggers:
+    trigger.on-deployed: |
+      - description: Application is synced and healthy. Triggered once per commit.
+        oncePer: app.status.sync.revision
+        send:
+        - app-deployed
+        when: app.status.operationState.phase in ['Succeeded'] and app.status.health.status == 'Healthy'
+    trigger.on-health-degraded: |
+      - description: Application has degraded
+        send:
+        - app-health-degraded
+        when: app.status.health.status == 'Degraded'
+    trigger.on-sync-failed: |
+      - description: Application syncing has failed
+        send:
+        - app-sync-failed
+        when: app.status.operationState.phase in ['Error', 'Failed']
+    trigger.on-sync-running: |
+      - description: Application is being synced
+        send:
+        - app-sync-running
+        when: app.status.operationState.phase in ['Running']
+    trigger.on-sync-status-unknown: |
+      - description: Application status is 'Unknown'
+        send:
+        - app-sync-status-unknown
+        when: app.status.sync.status == 'Unknown'
+    trigger.on-sync-succeeded: |
+      - description: Application syncing has succeeded
+        send:
+        - app-sync-succeeded
+        when: app.status.operationState.phase in ['Succeeded']
+
+    defaultTriggers: |
+      - on-sync-status-unknown

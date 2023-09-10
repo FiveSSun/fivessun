@@ -1,11 +1,3 @@
 replicas: 1
 podLabels:
   eks/fargate-profile: "default"
-settings:
-  aws:
-    defaultInstanceProfile: "eks-karpenter-fivessun-1-27-cdsnl-default"
-    clusterName: "fivessun-1-27-cdsnl"
-    clusterEndpoint: "https://E9DCD65596DA028DCA529837D60152D4.gr7.ap-northeast-2.eks.amazonaws.com"
-serviceAccount:
-  annotations:
-    eks.amazonaws.com/role-arn: "arn:aws:iam::629484894158:role/eks-karpenter-controller"
