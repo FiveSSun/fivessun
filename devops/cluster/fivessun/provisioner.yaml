@@ -24,7 +24,7 @@ spec:
     resources:
       cpu: 1k
   ttlSecondsAfterEmpty: 30 # 30 seconds
-  ttlSecondsUntilExpired: 604800 # 7 days
+  ttlSecondsUntilExpired: 86400 # 1 day
   providerRef:
     name: default
 ---
@@ -72,7 +72,7 @@ spec:
     resources:
       cpu: "256"
   ttlSecondsAfterEmpty: 30
-  ttlSecondsUntilExpired: 604800 # 7 days
+  ttlSecondsUntilExpired: 86400 # 1 day
   provider:
     amiFamily: Bottlerocket
     subnetSelector:
