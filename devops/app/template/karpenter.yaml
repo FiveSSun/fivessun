@@ -1,7 +1,3 @@
-# Guide: https://artifacthub.io/packages/helm/karpenter/karpenter
-# $ helm repo add karpenter https://charts.karpenter.sh/
-# $ helm repo update
-# $ helm upgrade --install karpenter oci://public.ecr.aws/karpenter/karpenter --version v0.29.2 -n karpenter -f default.yaml --create-namespace
 {{- $files := .Files }}
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet

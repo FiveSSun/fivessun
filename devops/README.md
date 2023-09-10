@@ -23,6 +23,8 @@ $ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.p
 
 - external secrets
 ```bash
+$ helm repo add external-secrets https://charts.external-secrets.io
+$ helm repo update
 $ helm upgrade --install external-secrets external-secrets/external-secrets \
 --version 0.9.4
 -n external-secrets \
@@ -32,5 +34,7 @@ $ helm upgrade --install external-secrets external-secrets/external-secrets \
 
 - karpenter
 ```bash
+$ helm repo add karpenter https://charts.karpenter.sh/
+$ helm repo update
 $ helm upgrade --install karpenter oci://public.ecr.aws/karpenter/karpenter --version v0.29.2 -n karpenter -f app/conf/karpenter/default.yaml --create-namespace
 ```
