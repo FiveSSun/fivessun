@@ -29,7 +29,6 @@ spec:
       destination:
         server: '{{`{{server}}`}}'
         namespace: karpenter
-      project: '{{`{{metadata.labels.eks.ridi.io/project}}`}}'
       source:
         repoURL: public.ecr.aws
         targetRevision: v0.29.2
