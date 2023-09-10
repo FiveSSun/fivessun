@@ -23,7 +23,7 @@ $ kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.p
 
 - external secrets
 ```bash
-$ helm repo add external-secrets https://charts.external-secrets.io
+$ helm repo add external-secrets ht[main.tf](terraform%2Fmain.tf)tps://charts.external-secrets.io
 $ helm repo update
 $ helm upgrade --install external-secrets external-secrets/external-secrets \
 --version 0.9.4
