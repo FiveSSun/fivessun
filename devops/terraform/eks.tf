@@ -53,7 +53,7 @@ module "eks_fivessun_1_27" {
   }
 
   cluster_endpoint_private_access = true
-  cluster_endpoint_public_access  = false
+  cluster_endpoint_public_access  = true
 
   iam_role_name            = "fivessun-eks-role"
   iam_role_use_name_prefix = true
@@ -79,7 +79,6 @@ module "eks_fivessun_1_27" {
   vpc_id     = module.vpc.vpc_id
   subnet_ids = concat(module.vpc.private_subnets, module.vpc.public_subnets)
 
-
   eks_managed_node_group_defaults = {
     ami_id                 = data.aws_ami.eks_bottlerocket_1_27.id
     platform               = "bottlerocket"
@@ -96,7 +95,6 @@ module "eks_fivessun_1_27" {
       max_size     = 2
       desired_size = 1
       instance_types = [
-        "t4g.small",
         "t4g.medium",
       ]
       capacity_type = "SPOT"
@@ -138,7 +136,6 @@ module "eks_fivessun_1_27" {
       selectors = [
         for ns in [
           "default",
-          #          "keda",
           "kube-system",
           "karpenter"
         ] :

@@ -1,0 +1,139 @@
+apiVersion: karpenter.sh/v1alpha5
+kind: Provisioner
+metadata:
+  name: default
+spec:
+  requirements:
+    - key: karpenter.sh/capacity-type
+      operator: In
+      values: ["spot"]
+    - key: kubernetes.io/arch
+      operator: In
+      values: ["arm64"]
+    - key: karpenter.k8s.aws/instance-family
+      operator: In
+      values: ["t4g"]
+    - key: karpenter.k8s.aws/instance-size
+      operator: In
+      values: ["small", "medium"]
+    - key: kubernetes.io/os
+      operator: In
+      values:
+        - linux
+  limits:
+    resources:
+      cpu: 1k
+  ttlSecondsAfterEmpty: 30 # 30 seconds
+  ttlSecondsUntilExpired: 604800 # 7 days
+  providerRef:
+    name: default
+---
+apiVersion: karpenter.k8s.aws/v1alpha1
+kind: AWSNodeTemplate
+metadata:
+  name: default
+spec:
+  amiFamily: Bottlerocket
+  subnetSelector:
+    karpenter.sh/discovery/fivessun-1-27-cdsnl: '*'
+  securityGroupSelector:
+    karpenter.sh/discovery/fivessun-1-27-cdsnl: '*'
+  tags:
+    Name: fivessun-1-27-cdsnl-default-by-karpenter
+    eks:cluster-name: fivessun-1-27-cdsnl
+---
+## Based on:
+## https://karpenter.sh/v0.13.1/getting-started/getting-started-with-eksctl/#provisioner
+#apiVersion: karpenter.sh/v1alpha5
+#kind: Provisioner
+#metadata:
+#  name: spot
+#spec:
+#  requirements:
+#    - key: karpenter.sh/capacity-type
+#      operator: In
+#      values: ["spot"]
+#    - key: kubernetes.io/arch
+#      operator: In
+#      values: ["arm64"]
+#    - key: node.kubernetes.io/instance-type
+#      operator: In
+#      values:
+#        - c6a.2xlarge
+#        - c6a.4xlarge
+#        - c6a.8xlarge
+#      # - c6a.large
+#    - key: kubernetes.io/os
+#      operator: In
+#      values:
+#        - linux
+#  limits:
+#    resources:
+#      cpu: "256"
+#  ttlSecondsAfterEmpty: 30
+#  ttlSecondsUntilExpired: 604800 # 7 days
+#  provider:
+#    amiFamily: Bottlerocket
+#    subnetSelector:
+#      karpenter.sh/discovery/fivessun-1-27-cdsnl: '*'
+#    securityGroupSelector:
+#      karpenter.sh/discovery/fivessun-1-27-cdsnl: '*'
+#    # According to:
+#    # https://karpenter.sh/v0.13.1/aws/instance-types/#c6alarge
+#    # the default ephemeral-storage is about 14.3 GiB, which is too small for most TF jobs.
+#    blockDeviceMappings:
+#      - deviceName: /dev/xvda
+#        ebs:
+#          deleteOnTermination: true
+#          encrypted: true
+#          volumeSize: 100Gi
+#          volumeType: gp3
+#---
+#apiVersion: karpenter.sh/v1alpha5
+#kind: Provisioner
+#metadata:
+#  name: gpu
+#spec:
+#  requirements:
+#    - key: karpenter.sh/capacity-type
+#      operator: In
+#      values: ["spot"]
+#    - key: kubernetes.io/arch
+#      operator: In
+#      values:
+#        - amd64
+#    - key: node.kubernetes.io/instance-type
+#      operator: In
+#      values:
+#        - g5.12xlarge
+#        - g5.2xlarge
+#        - g5.4xlarge
+#    - key: kubernetes.io/os
+#      operator: In
+#      values:
+#        - linux
+#  taints:
+#    - effect: NoSchedule
+#      key: nvidia.com/gpu
+#      value: "true"
+#  limits:
+#    resources:
+#      cpu: "256"
+#  ttlSecondsAfterEmpty: 30
+#  ttlSecondsUntilExpired: 604800 # 7 days
+#  provider:
+#    amiFamily: Bottlerocket
+#    subnetSelector:
+#      karpenter.sh/discovery/fivessun-1-27-cdsnl: '*'
+#    securityGroupSelector:
+#      karpenter.sh/discovery/fivessun-1-27-cdsnl: '*'
+#    # According to:
+#    # https://karpenter.sh/v0.13.1/aws/instance-types/#g52xlarge
+#    # the default ephemeral-storage is about 14.3 GiB, which is too small for most TF jobs.
+#    blockDeviceMappings:
+#      - deviceName: /dev/xvda
+#        ebs:
+#          deleteOnTermination: true
+#          encrypted: true
+#          volumeSize: 100Gi
+#          volumeType: gp3

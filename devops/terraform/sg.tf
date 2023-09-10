@@ -4,13 +4,11 @@ resource "aws_security_group" "app_mesh" {
   vpc_id      = module.vpc.vpc_id
 
   ingress {
-    from_port = 0
-    to_port   = 0
-    protocol  = "-1"
-    self      = true
-    security_groups = [
-      #      aws_security_group.app_ingress.id,
-    ]
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    self            = true
+    security_groups = []
     cidr_blocks = [
       module.vpc.vpc_cidr_block,
     ]

@@ -1,0 +1,36 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: bootstrap
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  generators:
+    - merge:
+        mergeKeys:
+          - name
+        generators:
+          - clusters:
+              values:
+                revision: main
+          - list:
+              elements:
+                - name: fivessun
+                  values.path: "devops/cluster/fivessun"
+  template:
+    metadata:
+      name: 'bootstrap-{{`{{name}}`}}'
+    spec:
+      destination:
+        server: '{{`{{server}}`}}'
+        namespace: ridi
+      project: '{{`{{metadata.labels.eks.ridi.io/project}}`}}'
+      source:
+        repoURL: git@github.com:fivessun/fivessun.git
+        targetRevision: '{{`{{values.revision}}`}}'
+        path: '{{`{{values.path}}`}}'
+        kustomize: {}
+
+      syncPolicy:
+        {{- toYaml .Values.argocd.syncPolicy | nindent 8 }}

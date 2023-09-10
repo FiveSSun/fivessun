@@ -1,15 +1,16 @@
 module "vpc" {
-  source                        = "registry.terraform.io/terraform-aws-modules/vpc/aws"
-  version                       = "5.0.0"
-  name                          = "fivessun"
-  cidr                          = "10.0.0.0/16"
-  enable_nat_gateway            = false # use `true` when you want to use eks with public
+  source  = "registry.terraform.io/terraform-aws-modules/vpc/aws"
+  version = "5.0.0"
+  name    = "fivessun"
+  cidr    = "10.0.0.0/16"
+
+  enable_nat_gateway            = true
   enable_dns_hostnames          = true
   manage_default_route_table    = false
   manage_default_network_acl    = false
   manage_default_security_group = false
   manage_default_vpc            = false
-  #  single_nat_gateway = false
+  single_nat_gateway            = true # If false, one NAT gateway per AZ will be created
 
   azs = [
     "ap-northeast-2a",

@@ -1,0 +1,54 @@
+{{- $files := .Files }}
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: karpenter
+  namespace: argocd
+  annotations:
+    notifications.argoproj.io/subscribe.on-sync-succeeded.slack: {{ .Values.slackNotificationChannel }}
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  generators:
+    - merge:
+        mergeKeys:
+          - name
+        generators:
+          - clusters: {}
+          - list:
+              elements:
+                - name: fivessun
+                  values:
+                    clusterName: fivessun-1-27-cdsnl
+                    defaultInstanceProfile: eks-karpenter-fivessun-1-27-cdsnl-default
+                    roleArn: arn:aws:iam::629484894158:role/eks-karpenter-controller
+  template:
+    metadata:
+      name: 'karpenter-{{`{{name}}`}}'
+    spec:
+      destination:
+        server: '{{`{{server}}`}}'
+        namespace: karpenter
+      project: '{{`{{metadata.labels.eks.ridi.io/project}}`}}'
+      source:
+        repoURL: public.ecr.aws
+        targetRevision: v0.29.2
+        chart: karpenter/karpenter
+        helm:
+          releaseName: karpenter
+          values: |
+            {{- $files.Get "conf/karpenter/default.yaml" | nindent 12 }}
+            settings:
+              aws:
+                defaultInstanceProfile: '{{`{{values.defaultInstanceProfile}}`}}'
+                clusterName: '{{`{{values.clusterName}}`}}'
+            serviceAccount:
+              annotations:
+                eks.amazonaws.com/role-arn: '{{`{{values.roleArn}}`}}'
+      ignoreDifferences:
+        - group: admissionregistration.k8s.io
+          kind: ValidatingWebhookConfiguration
+          jsonPointers:
+            - /webhooks/0/clientConfig/service/port
+      syncPolicy:
+        {{- toYaml .Values.argocd.syncPolicy | nindent 8 }}

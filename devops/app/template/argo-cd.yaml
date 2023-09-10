@@ -1,0 +1,23 @@
+{{- $files := .Files }}
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata
+  name: argocd
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: argocd
+    server: https://kubernetes.default.svc
+  project: infra
+  source:
+    repoURL: https://argoproj.github.io/argo-helm
+    targetRevision: 5.46.0
+    chart: argo-cd
+    helm:
+      releaseName: infra-argocd
+      values: |
+          {{- $files.Get "conf/argo-cd/default.yaml" | nindent 12 }}
+  syncPolicy:
+    {{- toYaml .Values.argocd.syncPolicy | nindent 8 }}
