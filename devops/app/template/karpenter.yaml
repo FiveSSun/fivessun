@@ -49,5 +49,5 @@ spec:
           kind: ValidatingWebhookConfiguration
           jsonPointers:
             - /webhooks/0/clientConfig/service/port
-      syncPolicy:
-        {{- toYaml .Values.argocd.syncPolicy | nindent 8 }}
+#      syncPolicy:
+#        {{- toYaml .Values.argocd.syncPolicy | nindent 8 }}
